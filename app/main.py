@@ -1,6 +1,6 @@
 """Tiny todo service. Tests: pytest -q"""
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 app = FastAPI(title="todo")
 
@@ -11,6 +11,14 @@ _next_id = 1
 class TodoIn(BaseModel):
     title: str
     done: bool = False
+
+    @field_validator("title")
+    @classmethod
+    def title_not_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("title must not be empty")
+        return stripped
 
 
 @app.get("/health")

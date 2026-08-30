@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -15,6 +16,15 @@ def test_create_and_list():
     todo = r.json()
     assert todo["title"] == "write tests" and todo["done"] is False
     assert todo in client.get("/todos").json()
+
+
+@pytest.mark.parametrize("title", ["", "   ", "\t\n"])
+def test_empty_title_rejected(title):
+    assert client.post("/todos", json={"title": title}).status_code == 422
+
+
+def test_title_is_stripped():
+    assert client.post("/todos", json={"title": "  padded  "}).json()["title"] == "padded"
 
 
 def test_toggle_done():
