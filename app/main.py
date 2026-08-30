@@ -32,6 +32,14 @@ def create_todo(todo: TodoIn):
     return item
 
 
+@app.patch("/todos/{todo_id}")
+def toggle_todo(todo_id: int):
+    if todo_id not in _todos:
+        raise HTTPException(status_code=404, detail="not found")
+    _todos[todo_id]["done"] = not _todos[todo_id]["done"]
+    return _todos[todo_id]
+
+
 @app.delete("/todos/{todo_id}", status_code=204)
 def delete_todo(todo_id: int):
     if todo_id not in _todos:
